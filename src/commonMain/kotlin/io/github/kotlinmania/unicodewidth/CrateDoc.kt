@@ -1,0 +1,168 @@
+// port-lint: source src/lib.rs
+// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT
+// file at the top-level directory of this distribution and at
+// http://rust-lang.org/COPYRIGHT.
+//
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+package io.github.kotlinmania.unicodewidth
+
+/**
+ * Determine displayed width of code points and strings according to
+ * [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)
+ * and other portions of the Unicode standard.
+ * See the [Rules for determining width](#rules-for-determining-width) section
+ * for the exact rules.
+ *
+ * This crate has no platform dependencies and works on every Kotlin Multiplatform target.
+ *
+ * ```kotlin
+ * import io.github.kotlinmania.unicodewidth.unicodeWidth
+ *
+ * val teststr = "Ｈｅｌｌｏ, ｗｏｒｌｄ!"
+ * val width = teststr.unicodeWidth()
+ * println(teststr)
+ * println("The above string is $width columns wide.")
+ * ```
+ *
+ * # CJK width variant
+ *
+ * The upstream Rust crate has a `"cjk"` Cargo feature flag (enabled by default) that
+ * controls whether [unicodeWidthCjk] and the CJK code point width entry point are exposed.
+ * Cargo features have no Kotlin equivalent, so this port always exposes both the non-CJK
+ * and CJK variants. Disabling the flag in Rust would have reduced the amount of static data
+ * needed by the crate; in this Kotlin port the full table is always included.
+ *
+ * ```kotlin
+ * import io.github.kotlinmania.unicodewidth.unicodeWidth
+ * import io.github.kotlinmania.unicodewidth.unicodeWidthCjk
+ *
+ * val teststr = "“𘀀”"
+ * check(teststr.unicodeWidth() == 4)
+ * check(teststr.unicodeWidthCjk() == 6)
+ * ```
+ *
+ * # Rules for determining width
+ *
+ * This crate currently uses the following rules to determine the width of a
+ * character or string, in order of decreasing precedence. These may be tweaked in the future.
+ *
+ * 1. In the following cases, the width of a string differs from the sum of the widths of its constituent characters:
+ *    - The sequence `"\r\n"` has width 1.
+ *    - Emoji-specific ligatures:
+ *      - Well-formed, fully-qualified [emoji ZWJ sequences] have width 2.
+ *      - [Emoji modifier sequences] have width 2.
+ *      - [Emoji presentation sequences] have width 2.
+ *      - Outside of an East Asian context, [text presentation sequences] have width 1 if their base character:
+ *        - Has the [`Emoji_Presentation`] property, and
+ *        - Is not in the [Enclosed Ideographic Supplement] block.
+ *    - The four [General Punctuation] code points U+2018, U+2019, U+201C, and U+201D always
+ *      have width 1 when followed by U+FE00, and width 2 when followed by U+FE01.
+ *    - Script-specific ligatures:
+ *      - For all the following ligatures, the insertion of any number of [default-ignorable][`Default_Ignorable_Code_Point`]
+ *        [combining marks] anywhere in the sequence will not change the total width. In addition, for all non-Arabic
+ *        ligatures, the insertion of any number of [U+200D ZERO WIDTH JOINER](https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-23/#G23126)s
+ *        will not affect the width.
+ *      - **[Arabic]**: A character sequence consisting of one character with [`Joining_Group`]`=Lam`,
+ *        followed by any number of characters with [`Joining_Type`]`=Transparent`, followed by one character
+ *        with [`Joining_Group`]`=Alef`, has total width 1. For example: `لا`‎, `لآ`‎, `ڸا`‎, `لٟٞأ`
+ *      - **[Buginese]**: U+1A15 U+1A17 U+200D U+1A10 (<a, -i> ya, `ᨕᨗ‍ᨐ`) has total width 1.
+ *      - **[Hebrew]**: "א U+200D ל" (Alef-Lamed, `א‍ל`) has total width 1.
+ *      - **[Khmer]**: Coeng signs consisting of U+17D2 followed by a code point in the ranges
+ *        U+1780..U+1782, U+1784..U+1787, U+1789..U+178C, U+178E..U+1793, U+1795..U+1798,
+ *        U+179B..U+179D, U+17A0, U+17A2, U+17A7, U+17AB..U+17AC, or U+17AF have width 0.
+ *      - **[Kirat Rai]**: Any sequence canonically equivalent to U+16D68, U+16D69, or U+16D6A has total width 1.
+ *      - **[Lisu]**: Tone letter combinations consisting of a code point in the range U+A4F8..U+A4FB
+ *        followed by a code point in the range U+A4FC..U+A4FD have width 1. For example: `ꓹꓼ`
+ *      - **[Old Turkic]**: U+10C32 U+200D U+10C03 (`𐰲‍𐰃`) has total width 1.
+ *      - **[Tifinagh]**: A sequence of a Tifinagh consonant in the range U+2D31..U+2D65 or U+2D6F,
+ *        followed by either [U+2D7F TIFINAGH CONSONANT JOINER] or U+200D, followed by another
+ *        Tifinagh consonant, has total width 1. For example: `ⵏ⵿ⴾ`
+ *    - In an East Asian context only, `<`, `=`, or `>` have width 2 when followed by
+ *      [U+0338 COMBINING LONG SOLIDUS OVERLAY]. The two characters may be separated by any number
+ *      of characters whose canonical decompositions consist only of characters meeting one of the
+ *      following requirements:
+ *      - Has [`Canonical_Combining_Class`] greater than 1, or
+ *      - Is a [default-ignorable][`Default_Ignorable_Code_Point`] [combining mark][combining marks].
+ * 2. In all other cases, the width of the string equals the sum of its character widths:
+ *    1. [U+2D7F TIFINAGH CONSONANT JOINER] has width 1 (outside of the ligatures described previously).
+ *    2. [U+115F HANGUL CHOSEONG FILLER](https://util.unicode.org/UnicodeJsps/character.jsp?a=115F) and
+ *       [U+17A4 KHMER INDEPENDENT VOWEL QAA](https://util.unicode.org/UnicodeJsps/character.jsp?a=17A4) have width 2.
+ *    3. [U+17D8 KHMER SIGN BEYYAL](https://util.unicode.org/UnicodeJsps/character.jsp?a=17D8) has width 3.
+ *    4. The following have width 0:
+ *       - [Characters](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5Cp%7BDefault_Ignorable_Code_Point%7D)
+ *         with the [`Default_Ignorable_Code_Point`] property.
+ *       - [Characters](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5Cp%7BGrapheme_Extend%7D)
+ *         with the [`Grapheme_Extend`] property.
+ *       - [Characters](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5Cp%7BHangul_Syllable_Type%3DV%7D%5Cp%7BHangul_Syllable_Type%3DT%7D)
+ *         with a [`Hangul_Syllable_Type`] of `Vowel_Jamo` (`V`) or `Trailing_Jamo` (`T`).
+ *       - The following [`Prepended_Concatenation_Mark`]s:
+ *         - [U+0605 NUMBER MARK ABOVE](https://util.unicode.org/UnicodeJsps/character.jsp?a=0605),
+ *         - [U+070F SYRIAC ABBREVIATION MARK](https://util.unicode.org/UnicodeJsps/character.jsp?a=070F),
+ *         - [U+0890 POUND MARK ABOVE](https://util.unicode.org/UnicodeJsps/character.jsp?a=0890),
+ *         - [U+0891 PIASTRE MARK ABOVE](https://util.unicode.org/UnicodeJsps/character.jsp?a=0891), and
+ *         - [U+08E2 DISPUTED END OF AYAH](https://util.unicode.org/UnicodeJsps/character.jsp?a=08E2).
+ *       - [Characters](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5Cp%7BGrapheme_Cluster_Break%3DPrepend%7D-%5Cp%7BPrepended_Concatenation_Mark%7D)
+ *         with the [`Grapheme_Extend=Prepend`] property, that are not also [`Prepended_Concatenation_Mark`]s.
+ *       - [U+A8FA DEVANAGARI CARET](https://util.unicode.org/UnicodeJsps/character.jsp?a=A8FA).
+ *    5. [Characters](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5Cp%7BEast_Asian_Width%3DF%7D%5Cp%7BEast_Asian_Width%3DW%7D)
+ *       with an [`East_Asian_Width`] of [`Fullwidth`] or [`Wide`] have width 2.
+ *    6. Characters fulfilling all of the following conditions have width 2 in an East Asian context, and width 1 otherwise:
+ *       - Fulfills one of the following conditions:
+ *         - Has an [`East_Asian_Width`] of [`Ambiguous`], or
+ *         - Has a [`Line_Break`] of [`AI`], or
+ *         - Has a canonical decomposition to an [`Ambiguous`] character followed by [U+0338 COMBINING LONG SOLIDUS OVERLAY], or
+ *         - Is [U+0387 GREEK ANO TELEIA](https://util.unicode.org/UnicodeJsps/character.jsp?a=0387); and
+ *       - Does not have a [`General_Category`] of `Letter` or `Modifier_Symbol`.
+ *    7. All other characters have width 1.
+ *
+ * [U+0338 COMBINING LONG SOLIDUS OVERLAY]: https://util.unicode.org/UnicodeJsps/character.jsp?a=0338
+ * [U+2D7F TIFINAGH CONSONANT JOINER]: https://util.unicode.org/UnicodeJsps/character.jsp?a=2D7F
+ *
+ * [`Canonical_Combining_Class`]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G50313
+ * [`Default_Ignorable_Code_Point`]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-5/#G40095
+ * [`East_Asian_Width`]: https://www.unicode.org/reports/tr11/#ED1
+ * [`Emoji_Presentation`]: https://unicode.org/reports/tr51/#def_emoji_presentation
+ * [`General_Category`]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-4/#G124142
+ * [`Grapheme_Extend=Prepend`]: https://www.unicode.org/reports/tr29/#Prepend
+ * [`Grapheme_Extend`]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G52443
+ * [`Hangul_Syllable_Type`]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G45593
+ * [`Joining_Group`]: https://www.unicode.org/versions/Unicode14.0.0/ch09.pdf#G36862
+ * [`Joining_Type`]: http://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-9/#G50009
+ * [`Line_Break`]: https://www.unicode.org/reports/tr14/#LD5
+ * [`Prepended_Concatenation_Mark`]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-23/#G37908
+ * [`Script`]: https://www.unicode.org/reports/tr24/#Script
+ *
+ * [`Fullwidth`]: https://www.unicode.org/reports/tr11/#ED2
+ * [`Wide`]: https://www.unicode.org/reports/tr11/#ED4
+ * [`Ambiguous`]: https://www.unicode.org/reports/tr11/#ED6
+ *
+ * [`AI`]: https://www.unicode.org/reports/tr14/#AI
+ *
+ * [combining marks]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G30602
+ *
+ * [emoji ZWJ sequences]: https://www.unicode.org/reports/tr51/#def_emoji_sequence
+ * [Emoji modifier sequences]: https://www.unicode.org/reports/tr51/#def_emoji_modifier_sequence
+ * [Emoji presentation sequences]: https://unicode.org/reports/tr51/#def_emoji_presentation_sequence
+ * [text presentation sequences]: https://unicode.org/reports/tr51/#def_text_presentation_sequence
+ *
+ * [General Punctuation]: https://www.unicode.org/charts/PDF/Unicode-16.0/U160-2000.pdf
+ * [Enclosed Ideographic Supplement]: https://unicode.org/charts/nameslist/n_1F200.html
+ *
+ * [Arabic]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-9/#G7480
+ * [Buginese]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-17/#G26743
+ * [Hebrew]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-9/#G6528
+ * [Khmer]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-16/#G64642
+ * [Kirat Rai]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-13/#G746409
+ * [Lisu]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-18/#G44587
+ * [Old Turkic]: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-14/#G41975
+ * [Tifinagh]: http://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/#G43184
+ *
+ *
+ * ## Canonical equivalence
+ *
+ * Canonically equivalent strings are assigned the same width (CJK and non-CJK).
+ */
