@@ -1,3 +1,4 @@
-// Empty package-info so compileJvmTestJava has input. Test code lives in
-// commonTest Kotlin; no actual Java tests are intended.
+/**
+ * Package documentation for JVM test sources related to the Unicode width library.
+ */
 package io.github.kotlinmania.unicodewidth;
