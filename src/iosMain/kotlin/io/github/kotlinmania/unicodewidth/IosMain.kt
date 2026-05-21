@@ -1,8 +1,7 @@
 // port-lint: ignore
 // Empty marker for the iosMain intermediate source set so the Kotlin
-// Multiplatform metadata compile task has input. All actual implementation
-// lives in commonMain — this file exists purely so the build graph never
-// reports NO-SOURCE on this source set. Do not add behavior here.
+// Multiplatform metadata compile task has input rather than reporting
+// NO-SOURCE. All implementation lives in commonMain; this file
+// contributes only a package directive so no symbol is added to the
+// published .klib's linkdata.
 package io.github.kotlinmania.unicodewidth
-
-internal object IosMainSourceSetMarker
