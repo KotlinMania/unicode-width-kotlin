@@ -167,6 +167,33 @@ kotlin {
     jvmToolchain(21)
 }
 
+// Empty placeholder files exist under every source set so that no Gradle
+// task in the build graph reports NO-SOURCE; the markers are not part of
+// the published API surface and must not be bundled into the JAR / KLIB /
+// AAR artifacts consumers download. Filter them out of every Jar-shaped
+// archive task and out of AAR packaging.
+val excludedMarkerPatterns = listOf(
+    "**/.source-set-marker-*",
+    "**/libunicode_width_marker.so",
+    "**/libunicode_width_test_marker.so",
+)
+
+tasks.withType<Jar>().configureEach {
+    excludedMarkerPatterns.forEach { exclude(it) }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.packaging.jniLibs.excludes.addAll(
+            "**/libunicode_width_marker.so",
+            "**/libunicode_width_test_marker.so",
+        )
+        variant.packaging.resources.excludes.addAll(
+            ".source-set-marker-*",
+        )
+    }
+}
+
 tasks.withType<AbstractTestTask>().configureEach {
     testLogging {
         events(
