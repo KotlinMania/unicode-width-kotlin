@@ -97,7 +97,7 @@ Note: If you are using `unicode-width` for linebreaking, the change treating `\n
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:unicode-width-kotlin:0.1.0")
+    implementation("io.github.kotlinmania:unicode-width-kotlin:0.1.1")
 }
 ```
 
