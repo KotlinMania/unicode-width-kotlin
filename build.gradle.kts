@@ -201,10 +201,18 @@ kotlin {
         binaries.framework { baseName = "UnicodeWidth"; xcf.add(this) }
     }
     iosSimulatorArm64 {
-        binaries.framework { baseName = "UnicodeWidth"; xcf.add(this) }
+        binaries.framework {
+            baseName = "UnicodeWidth"
+            isStatic = true
+            xcf.add(this)
+        }
     }
     iosX64 {
-        binaries.framework { baseName = "UnicodeWidth"; xcf.add(this) }
+        binaries.framework {
+            baseName = "UnicodeWidth"
+            isStatic = true
+            xcf.add(this)
+        }
     }
 
     tvosArm64 {
