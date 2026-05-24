@@ -1,4 +1,4 @@
-// port-lint: source src/lib.rs
+// port-lint: source lib.rs
 // Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
@@ -32,10 +32,17 @@ public fun Int.unicodeWidth(): Int? = singleCharWidth(this)
  * Returns the code point's displayed width in columns, or `null` if the
  * code point is a control character.
  *
- * Translated from upstream `UnicodeWidthChar::width_cjk`
- * (`impl UnicodeWidthChar for char` in `src/lib.rs`, gated by the `"cjk"` Cargo
- * feature). The receiver is [Int], interpreted as a Unicode scalar value, for the
- * same reason described on [unicodeWidth].
+ * This package-level form delegates to [unicodeWidth] for the table-backed
+ * code point lookup.
+ */
+public fun width(codePoint: Int): Int? = codePoint.unicodeWidth()
+
+/**
+ * Returns the code point's displayed width in columns, or `null` if the
+ * code point is a control character.
+ *
+ * The receiver is [Int], interpreted as a Unicode scalar value, for the same
+ * reason described on [unicodeWidth].
  *
  * This function treats characters in the Ambiguous category according
  * to [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)
@@ -43,3 +50,12 @@ public fun Int.unicodeWidth(): Int? = singleCharWidth(this)
  * CJK contexts.
  */
 public fun Int.unicodeWidthCjk(): Int? = singleCharWidthCjk(this)
+
+/**
+ * Returns the code point's displayed width in columns for CJK contexts, or
+ * `null` if the code point is a control character.
+ *
+ * This package-level form delegates to [unicodeWidthCjk] for the table-backed
+ * CJK lookup.
+ */
+public fun widthCjk(codePoint: Int): Int? = codePoint.unicodeWidthCjk()
