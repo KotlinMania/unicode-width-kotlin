@@ -1,4 +1,4 @@
-// port-lint: source src/lib.rs
+// port-lint: source lib.rs
 // Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
@@ -29,9 +29,15 @@ public fun String.unicodeWidth(): Int = strWidth(this)
 /**
  * Returns the string's displayed width in columns.
  *
- * Translated from upstream `UnicodeWidthStr::width_cjk`
- * (`impl UnicodeWidthStr for str` in `src/lib.rs`, gated by the `"cjk"` Cargo
- * feature). See [unicodeWidth] for notes on the receiver type.
+ * This package-level form delegates to [unicodeWidth] for the table-backed
+ * string lookup.
+ */
+public fun width(text: String): Int = text.unicodeWidth()
+
+/**
+ * Returns the string's displayed width in columns.
+ *
+ * See [unicodeWidth] for notes on the receiver type.
  *
  * This function treats characters in the Ambiguous category according
  * to [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)
@@ -39,3 +45,11 @@ public fun String.unicodeWidth(): Int = strWidth(this)
  * CJK contexts.
  */
 public fun String.unicodeWidthCjk(): Int = strWidthCjk(this)
+
+/**
+ * Returns the string's displayed width in columns for CJK contexts.
+ *
+ * This package-level form delegates to [unicodeWidthCjk] for the table-backed
+ * CJK string lookup.
+ */
+public fun widthCjk(text: String): Int = text.unicodeWidthCjk()
