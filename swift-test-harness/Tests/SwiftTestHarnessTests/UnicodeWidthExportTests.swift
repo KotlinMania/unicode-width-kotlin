@@ -6,6 +6,6 @@ import UnicodeWidth
 struct UnicodeWidthExportTests {
     @Test("Swift module loads cleanly")
     func swiftModuleLoads() throws {
-        #expect(true)
+        #expect(Bool(true))
     }
 }
