@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Empty marker for the androidNativeMain intermediate source set so the
 // Kotlin Multiplatform metadata compile task has input rather than
 // reporting NO-SOURCE. All implementation lives in commonMain; this file

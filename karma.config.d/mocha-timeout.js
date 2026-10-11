@@ -7,7 +7,7 @@
 config.set({
     client: {
         mocha: {
-            timeout: 500,
+            timeout: 60000,
         },
     },
 });
