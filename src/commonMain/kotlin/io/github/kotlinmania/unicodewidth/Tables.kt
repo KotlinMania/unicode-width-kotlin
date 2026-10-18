@@ -17,131 +17,132 @@ internal data class WidthInfo(
 ) {
     /** Whether this width mode is ligature transparent (has 5th MSB set). */
     fun isLigatureTransparent(): Boolean =
-        (raw and 0b0000_1000_0000_0000) == 0b0000_1000_0000_0000
+        (this.raw and 0x0800) == 0x0800
 
     /** Sets 6th MSB. */
-    fun setZwjBit(): WidthInfo = WidthInfo(raw or 0b0000_0100_0000_0000)
+    fun setZwjBit(): WidthInfo =
+        WidthInfo(this.raw or 0x0400)
 
     /** Has top bit set. */
     fun isEmojiPresentation(): Boolean =
-        (raw and VARIATION_SELECTOR_16.raw) == VARIATION_SELECTOR_16.raw
+        (this.raw and WidthInfo.VARIATION_SELECTOR_16.raw) == WidthInfo.VARIATION_SELECTOR_16.raw
 
     fun isZwjEmojiPresentation(): Boolean =
-        (raw and 0b1011_0000_0000_0000) == 0b1001_0000_0000_0000
+        (this.raw and 0xB000) == 0x9000
 
     /** Set top bit. */
     fun setEmojiPresentation(): WidthInfo =
-        if ((raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK ||
-            (raw and 0b1001_0000_0000_0000) == 0b0001_0000_0000_0000
+        if ((this.raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK ||
+            (this.raw and 0x9000) == 0x1000
         ) {
             WidthInfo(
-                raw or (
-                    VARIATION_SELECTOR_16.raw
-                        and VARIATION_SELECTOR_15.raw.inv()
-                        and VARIATION_SELECTOR_1_OR_2.raw.inv()
+                this.raw or (
+                    WidthInfo.VARIATION_SELECTOR_16.raw
+                        and WidthInfo.VARIATION_SELECTOR_15.raw.inv()
+                        and WidthInfo.VARIATION_SELECTOR_1_OR_2.raw.inv()
                 ),
             )
         } else {
-            VARIATION_SELECTOR_16
+            WidthInfo.VARIATION_SELECTOR_16
         }
 
     /** Clear top bit. */
     fun unsetEmojiPresentation(): WidthInfo =
-        if ((raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK) {
-            WidthInfo(raw and VARIATION_SELECTOR_16.raw.inv() and 0xFFFF)
+        if ((this.raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK) {
+            WidthInfo(this.raw and WidthInfo.VARIATION_SELECTOR_16.raw.inv())
         } else {
-            DEFAULT
+            WidthInfo.DEFAULT
         }
 
     /** Has 2nd bit set. */
     fun isTextPresentation(): Boolean =
-        (raw and VARIATION_SELECTOR_15.raw) == VARIATION_SELECTOR_15.raw
+        (this.raw and WidthInfo.VARIATION_SELECTOR_15.raw) == WidthInfo.VARIATION_SELECTOR_15.raw
 
     /** Set 2nd bit. */
     fun setTextPresentation(): WidthInfo =
-        if ((raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK) {
+        if ((this.raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK) {
             WidthInfo(
-                raw or (
-                    VARIATION_SELECTOR_15.raw
-                        and VARIATION_SELECTOR_16.raw.inv()
-                        and VARIATION_SELECTOR_1_OR_2.raw.inv()
+                this.raw or (
+                    WidthInfo.VARIATION_SELECTOR_15.raw
+                        and WidthInfo.VARIATION_SELECTOR_16.raw.inv()
+                        and WidthInfo.VARIATION_SELECTOR_1_OR_2.raw.inv()
                 ),
             )
         } else {
-            WidthInfo(VARIATION_SELECTOR_15.raw)
+            WidthInfo(WidthInfo.VARIATION_SELECTOR_15.raw)
         }
 
     /** Clear 2nd bit. */
     fun unsetTextPresentation(): WidthInfo =
-        WidthInfo(raw and VARIATION_SELECTOR_15.raw.inv() and 0xFFFF)
+        WidthInfo(this.raw and WidthInfo.VARIATION_SELECTOR_15.raw.inv())
 
     /** Has 7th bit set. */
     fun isVs12(): Boolean =
-        (raw and VARIATION_SELECTOR_1_OR_2.raw) == VARIATION_SELECTOR_1_OR_2.raw
+        (this.raw and WidthInfo.VARIATION_SELECTOR_1_OR_2.raw) == WidthInfo.VARIATION_SELECTOR_1_OR_2.raw
 
     /** Set 7th bit. */
     fun setVs12(): WidthInfo =
-        if ((raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK) {
+        if ((this.raw and LIGATURE_TRANSPARENT_MASK) == LIGATURE_TRANSPARENT_MASK) {
             WidthInfo(
-                raw or (
-                    VARIATION_SELECTOR_1_OR_2.raw
-                        and VARIATION_SELECTOR_15.raw.inv()
-                        and VARIATION_SELECTOR_16.raw.inv()
+                this.raw or (
+                    WidthInfo.VARIATION_SELECTOR_1_OR_2.raw
+                        and WidthInfo.VARIATION_SELECTOR_15.raw.inv()
+                        and WidthInfo.VARIATION_SELECTOR_16.raw.inv()
                 ),
             )
         } else {
-            WidthInfo(VARIATION_SELECTOR_1_OR_2.raw)
+            WidthInfo(WidthInfo.VARIATION_SELECTOR_1_OR_2.raw)
         }
 
     /** Clear 7th bit. */
     fun unsetVs12(): WidthInfo =
-        WidthInfo(raw and VARIATION_SELECTOR_1_OR_2.raw.inv() and 0xFFFF)
+        WidthInfo(this.raw and WidthInfo.VARIATION_SELECTOR_1_OR_2.raw.inv())
 
     companion object {
         /** No special handling necessary. */
         val DEFAULT = WidthInfo(0)
-        val LINE_FEED = WidthInfo(0b0000000000000001)
-        val EMOJI_MODIFIER = WidthInfo(0b0000000000000010)
-        val REGIONAL_INDICATOR = WidthInfo(0b0000000000000011)
-        val SEVERAL_REGIONAL_INDICATOR = WidthInfo(0b0000000000000100)
-        val EMOJI_PRESENTATION = WidthInfo(0b0000000000000101)
-        val ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0001000000000110)
-        val VS16_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b1001000000000110)
-        val KEYCAP_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0001000000000111)
-        val VS16_KEYCAP_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b1001000000000111)
-        val REGIONAL_INDICATOR_ZWJ_PRESENTATION = WidthInfo(0b0000000000001001)
-        val EVEN_REGIONAL_INDICATOR_ZWJ_PRESENTATION = WidthInfo(0b0000000000001010)
-        val ODD_REGIONAL_INDICATOR_ZWJ_PRESENTATION = WidthInfo(0b0000000000001011)
-        val TAG_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000010000)
-        val TAG_D1_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000010001)
-        val TAG_D2_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000010010)
-        val TAG_D3_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000010011)
-        val TAG_A1_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000011001)
-        val TAG_A2_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000011010)
-        val TAG_A3_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000011011)
-        val TAG_A4_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000011100)
-        val TAG_A5_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000011101)
-        val TAG_A6_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0b0000000000011110)
-        val KIRAT_RAI_VOWEL_SIGN_E = WidthInfo(0b0000000000100000)
-        val KIRAT_RAI_VOWEL_SIGN_AI = WidthInfo(0b0000000000100001)
-        val VARIATION_SELECTOR_1_OR_2 = WidthInfo(0b0000_0010_0000_0000)
-        val VARIATION_SELECTOR_15 = WidthInfo(0b0100_0000_0000_0000)
-        val VARIATION_SELECTOR_16 = WidthInfo(0b1000_0000_0000_0000)
-        val JOINING_GROUP_ALEF = WidthInfo(0b0011000011111111)
-        val COMBINING_LONG_SOLIDUS_OVERLAY = WidthInfo(0b0011110011111111)
-        val SOLIDUS_OVERLAY_ALEF = WidthInfo(0b0011100011111111)
-        val HEBREW_LETTER_LAMED = WidthInfo(0b0011100000000000)
-        val ZWJ_HEBREW_LETTER_LAMED = WidthInfo(0b0011110000000000)
-        val BUGINESE_LETTER_YA = WidthInfo(0b0011100000000001)
-        val ZWJ_BUGINESE_LETTER_YA = WidthInfo(0b0011110000000001)
-        val BUGINESE_VOWEL_SIGN_I_ZWJ_LETTER_YA = WidthInfo(0b0011110000000010)
-        val TIFINAGH_CONSONANT = WidthInfo(0b0011100000000011)
-        val ZWJ_TIFINAGH_CONSONANT = WidthInfo(0b0011110000000011)
-        val TIFINAGH_JOINER_CONSONANT = WidthInfo(0b0011110000000100)
-        val LISU_TONE_LETTER_MYA_NA_JEU = WidthInfo(0b0011110000000101)
-        val OLD_TURKIC_LETTER_ORKHON_I = WidthInfo(0b0011100000000110)
-        val ZWJ_OLD_TURKIC_LETTER_ORKHON_I = WidthInfo(0b0011110000000110)
-        val KHMER_COENG_ELIGIBLE_LETTER = WidthInfo(0b0011110000000111)
+        val LINE_FEED = WidthInfo(0x0001)
+        val EMOJI_MODIFIER = WidthInfo(0x0002)
+        val REGIONAL_INDICATOR = WidthInfo(0x0003)
+        val SEVERAL_REGIONAL_INDICATOR = WidthInfo(0x0004)
+        val EMOJI_PRESENTATION = WidthInfo(0x0005)
+        val ZWJ_EMOJI_PRESENTATION = WidthInfo(0x1006)
+        val VS16_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x9006)
+        val KEYCAP_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x1007)
+        val VS16_KEYCAP_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x9007)
+        val REGIONAL_INDICATOR_ZWJ_PRESENTATION = WidthInfo(0x0009)
+        val EVEN_REGIONAL_INDICATOR_ZWJ_PRESENTATION = WidthInfo(0x000A)
+        val ODD_REGIONAL_INDICATOR_ZWJ_PRESENTATION = WidthInfo(0x000B)
+        val TAG_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x0010)
+        val TAG_D1_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x0011)
+        val TAG_D2_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x0012)
+        val TAG_D3_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x0013)
+        val TAG_A1_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x0019)
+        val TAG_A2_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x001A)
+        val TAG_A3_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x001B)
+        val TAG_A4_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x001C)
+        val TAG_A5_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x001D)
+        val TAG_A6_END_ZWJ_EMOJI_PRESENTATION = WidthInfo(0x001E)
+        val KIRAT_RAI_VOWEL_SIGN_E = WidthInfo(0x0020)
+        val KIRAT_RAI_VOWEL_SIGN_AI = WidthInfo(0x0021)
+        val VARIATION_SELECTOR_1_OR_2 = WidthInfo(0x0200)
+        val VARIATION_SELECTOR_15 = WidthInfo(0x4000)
+        val VARIATION_SELECTOR_16 = WidthInfo(0x8000)
+        val JOINING_GROUP_ALEF = WidthInfo(0x30FF)
+        val COMBINING_LONG_SOLIDUS_OVERLAY = WidthInfo(0x3CFF)
+        val SOLIDUS_OVERLAY_ALEF = WidthInfo(0x38FF)
+        val HEBREW_LETTER_LAMED = WidthInfo(0x3800)
+        val ZWJ_HEBREW_LETTER_LAMED = WidthInfo(0x3C00)
+        val BUGINESE_LETTER_YA = WidthInfo(0x3801)
+        val ZWJ_BUGINESE_LETTER_YA = WidthInfo(0x3C01)
+        val BUGINESE_VOWEL_SIGN_I_ZWJ_LETTER_YA = WidthInfo(0x3C02)
+        val TIFINAGH_CONSONANT = WidthInfo(0x3803)
+        val ZWJ_TIFINAGH_CONSONANT = WidthInfo(0x3C03)
+        val TIFINAGH_JOINER_CONSONANT = WidthInfo(0x3C04)
+        val LISU_TONE_LETTER_MYA_NA_JEU = WidthInfo(0x3C05)
+        val OLD_TURKIC_LETTER_ORKHON_I = WidthInfo(0x3806)
+        val ZWJ_OLD_TURKIC_LETTER_ORKHON_I = WidthInfo(0x3C06)
+        val KHMER_COENG_ELIGIBLE_LETTER = WidthInfo(0x3C07)
     }
 }
 
@@ -157,7 +158,7 @@ internal class Align128<T>(
     val value: T,
 )
 
-private const val LIGATURE_TRANSPARENT_MASK: Int = 0b0010_0000_0000_0000
+private const val LIGATURE_TRANSPARENT_MASK: Int = 0x2000
 
 /**
  * The version of [Unicode](http://www.unicode.org/) that this version of
@@ -192,28 +193,28 @@ internal fun lookupWidth(c: Int): Pair<Int, WidthInfo> {
     val packedWidths = WIDTH_LEAVES[t2Offset][(cp shr 2) and 0x1F]
 
     // Extract the packed width
-    val width = (packedWidths shr (2 * (cp and 0b11))) and 0b11
+    val width = (packedWidths shr (2 * (cp and 0x3))) and 0x3
 
     return if (width < 3) {
         Pair(width, WidthInfo.DEFAULT)
     } else {
-        when (c) {
-            0xA -> Pair(1, WidthInfo.LINE_FEED)
-            0x5DC -> Pair(1, WidthInfo.HEBREW_LETTER_LAMED)
-            in 0x622..0x882 -> Pair(1, WidthInfo.JOINING_GROUP_ALEF)
-            in 0x1780..0x17AF -> Pair(1, WidthInfo.KHMER_COENG_ELIGIBLE_LETTER)
-            0x17D8 -> Pair(3, WidthInfo.DEFAULT)
-            0x1A10 -> Pair(1, WidthInfo.BUGINESE_LETTER_YA)
-            in 0x2D31..0x2D6F -> Pair(1, WidthInfo.TIFINAGH_CONSONANT)
-            in 0xA4FC..0xA4FD -> Pair(1, WidthInfo.LISU_TONE_LETTER_MYA_NA_JEU)
-            0xFE01 -> Pair(0, WidthInfo.VARIATION_SELECTOR_1_OR_2)
-            0xFE0E -> Pair(0, WidthInfo.VARIATION_SELECTOR_15)
-            0xFE0F -> Pair(0, WidthInfo.VARIATION_SELECTOR_16)
-            0x10C03 -> Pair(1, WidthInfo.OLD_TURKIC_LETTER_ORKHON_I)
-            0x16D67 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_E)
-            0x16D68 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_AI)
-            in 0x1F1E6..0x1F1FF -> Pair(1, WidthInfo.REGIONAL_INDICATOR)
-            in 0x1F3FB..0x1F3FF -> Pair(2, WidthInfo.EMOJI_MODIFIER)
+        when {
+            c == 0xA -> Pair(1, WidthInfo.LINE_FEED)
+            c == 0x5DC -> Pair(1, WidthInfo.HEBREW_LETTER_LAMED)
+            c in 0x622..0x882 -> Pair(1, WidthInfo.JOINING_GROUP_ALEF)
+            c in 0x1780..0x17AF -> Pair(1, WidthInfo.KHMER_COENG_ELIGIBLE_LETTER)
+            c == 0x17D8 -> Pair(3, WidthInfo.DEFAULT)
+            c == 0x1A10 -> Pair(1, WidthInfo.BUGINESE_LETTER_YA)
+            c in 0x2D31..0x2D6F -> Pair(1, WidthInfo.TIFINAGH_CONSONANT)
+            c in 0xA4FC..0xA4FD -> Pair(1, WidthInfo.LISU_TONE_LETTER_MYA_NA_JEU)
+            c == 0xFE01 -> Pair(0, WidthInfo.VARIATION_SELECTOR_1_OR_2)
+            c == 0xFE0E -> Pair(0, WidthInfo.VARIATION_SELECTOR_15)
+            c == 0xFE0F -> Pair(0, WidthInfo.VARIATION_SELECTOR_16)
+            c == 0x10C03 -> Pair(1, WidthInfo.OLD_TURKIC_LETTER_ORKHON_I)
+            c == 0x16D67 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_E)
+            c == 0x16D68 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_AI)
+            c in 0x1F1E6..0x1F1FF -> Pair(1, WidthInfo.REGIONAL_INDICATOR)
+            c in 0x1F3FB..0x1F3FF -> Pair(2, WidthInfo.EMOJI_MODIFIER)
             else -> Pair(2, WidthInfo.EMOJI_PRESENTATION)
         }
     }
@@ -507,32 +508,40 @@ internal fun lookupWidthCjk(c: Int): Pair<Int, WidthInfo> {
 
     val t1Offset = WIDTH_ROOT_CJK[cp shr 13]
 
+    // Each sub-table in WIDTH_MIDDLE is 7 bits, and each stored entry is a byte,
+    // so each sub-table is 128 bytes in size.
+    // (Sub-tables are selected using the computed offset from the previous table.)
     val t2Offset = WIDTH_MIDDLE[t1Offset][(cp shr 7) and 0x3F]
 
+    // Each sub-table in WIDTH_LEAVES is 6 bits, but each stored entry is 2 bits.
+    // This is accomplished by packing four stored entries into one byte.
+    // So each sub-table is 2**(7-2) == 32 bytes in size.
+    // Since this is the last table, each entry represents an encoded width.
     val packedWidths = WIDTH_LEAVES[t2Offset][(cp shr 2) and 0x1F]
 
-    val width = (packedWidths shr (2 * (cp and 0b11))) and 0b11
+    // Extract the packed width
+    val width = (packedWidths shr (2 * (cp and 0x3))) and 0x3
 
     return if (width < 3) {
         Pair(width, WidthInfo.DEFAULT)
     } else {
-        when (c) {
-            0xA -> Pair(1, WidthInfo.LINE_FEED)
-            0x338 -> Pair(0, WidthInfo.COMBINING_LONG_SOLIDUS_OVERLAY)
-            0x5DC -> Pair(1, WidthInfo.HEBREW_LETTER_LAMED)
-            in 0x622..0x882 -> Pair(1, WidthInfo.JOINING_GROUP_ALEF)
-            in 0x1780..0x17AF -> Pair(1, WidthInfo.KHMER_COENG_ELIGIBLE_LETTER)
-            0x17D8 -> Pair(3, WidthInfo.DEFAULT)
-            0x1A10 -> Pair(1, WidthInfo.BUGINESE_LETTER_YA)
-            in 0x2D31..0x2D6F -> Pair(1, WidthInfo.TIFINAGH_CONSONANT)
-            in 0xA4FC..0xA4FD -> Pair(1, WidthInfo.LISU_TONE_LETTER_MYA_NA_JEU)
-            0xFE00 -> Pair(0, WidthInfo.VARIATION_SELECTOR_1_OR_2)
-            0xFE0F -> Pair(0, WidthInfo.VARIATION_SELECTOR_16)
-            0x10C03 -> Pair(1, WidthInfo.OLD_TURKIC_LETTER_ORKHON_I)
-            0x16D67 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_E)
-            0x16D68 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_AI)
-            in 0x1F1E6..0x1F1FF -> Pair(1, WidthInfo.REGIONAL_INDICATOR)
-            in 0x1F3FB..0x1F3FF -> Pair(2, WidthInfo.EMOJI_MODIFIER)
+        when {
+            c == 0xA -> Pair(1, WidthInfo.LINE_FEED)
+            c == 0x338 -> Pair(0, WidthInfo.COMBINING_LONG_SOLIDUS_OVERLAY)
+            c == 0x5DC -> Pair(1, WidthInfo.HEBREW_LETTER_LAMED)
+            c in 0x622..0x882 -> Pair(1, WidthInfo.JOINING_GROUP_ALEF)
+            c in 0x1780..0x17AF -> Pair(1, WidthInfo.KHMER_COENG_ELIGIBLE_LETTER)
+            c == 0x17D8 -> Pair(3, WidthInfo.DEFAULT)
+            c == 0x1A10 -> Pair(1, WidthInfo.BUGINESE_LETTER_YA)
+            c in 0x2D31..0x2D6F -> Pair(1, WidthInfo.TIFINAGH_CONSONANT)
+            c in 0xA4FC..0xA4FD -> Pair(1, WidthInfo.LISU_TONE_LETTER_MYA_NA_JEU)
+            c == 0xFE00 -> Pair(0, WidthInfo.VARIATION_SELECTOR_1_OR_2)
+            c == 0xFE0F -> Pair(0, WidthInfo.VARIATION_SELECTOR_16)
+            c == 0x10C03 -> Pair(1, WidthInfo.OLD_TURKIC_LETTER_ORKHON_I)
+            c == 0x16D67 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_E)
+            c == 0x16D68 -> Pair(1, WidthInfo.KIRAT_RAI_VOWEL_SIGN_AI)
+            c in 0x1F1E6..0x1F1FF -> Pair(1, WidthInfo.REGIONAL_INDICATOR)
+            c in 0x1F3FB..0x1F3FF -> Pair(2, WidthInfo.EMOJI_MODIFIER)
             else -> Pair(2, WidthInfo.EMOJI_PRESENTATION)
         }
     }
@@ -955,29 +964,30 @@ internal val NORMALIZATION_TEST_WIDTHS_CJK: Array<WidthInfo> =
         WidthInfo.KHMER_COENG_ELIGIBLE_LETTER,
     )
 
+internal val NORMALIZATION_TEST: Array<Array<String>> =
+    arrayOf(
+        arrayOf("Ḋ", "Ḋ", "Ḋ", "Ḋ", "Ḋ"),
+        arrayOf("Ḍ", "Ḍ", "Ḍ", "Ḍ", "Ḍ"),
+        arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+        arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+        arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+        arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+        arrayOf("Ḋ̛", "Ḋ̛", "Ḋ̛", "Ḋ̛", "Ḋ̛"),
+        arrayOf("Ḍ̛", "Ḍ̛", "Ḍ̛", "Ḍ̛", "Ḍ̛"),
+        arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+        arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+        arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+        arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+        arrayOf("È", "È", "È", "È", "È"),
+        arrayOf("Ē", "Ē", "Ē", "Ē", "Ē"),
+        arrayOf("È", "È", "È", "È", "È"),
+        arrayOf("Ē", "Ē", "Ē", "Ē", "Ē"),
+        arrayOf("Ḕ", "Ḕ", "Ḕ", "Ḕ", "Ḕ"),
+        arrayOf("Ḕ", "Ḕ", "Ḕ", "Ḕ", "Ḕ"),
+    )
+
 internal fun testNormalization() {
-    val normalizationSample: Array<Array<String>> =
-        arrayOf(
-            arrayOf("Ḋ", "Ḋ", "Ḋ", "Ḋ", "Ḋ"),
-            arrayOf("Ḍ", "Ḍ", "Ḍ", "Ḍ", "Ḍ"),
-            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
-            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
-            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
-            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
-            arrayOf("Ḋ̛", "Ḋ̛", "Ḋ̛", "Ḋ̛", "Ḋ̛"),
-            arrayOf("Ḍ̛", "Ḍ̛", "Ḍ̛", "Ḍ̛", "Ḍ̛"),
-            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
-            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
-            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
-            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
-            arrayOf("È", "È", "È", "È", "È"),
-            arrayOf("Ē", "Ē", "Ē", "Ē", "Ē"),
-            arrayOf("È", "È", "È", "È", "È"),
-            arrayOf("Ē", "Ē", "Ē", "Ē", "Ē"),
-            arrayOf("Ḕ", "Ḕ", "Ḕ", "Ḕ", "Ḕ"),
-            arrayOf("Ḕ", "Ḕ", "Ḕ", "Ḕ", "Ḕ"),
-        )
-    for (entry in normalizationSample) {
+    for (entry in NORMALIZATION_TEST) {
         val orig = entry[0]
         val nfc = entry[1]
         val nfd = entry[2]
@@ -1001,12 +1011,26 @@ internal fun testNormalization() {
  * Used by the Alef-Lamed ligatures. See also [isLigatureTransparent], a near-subset
  * of this (only ZWJ is excepted) which is transparent for non-Arabic ligatures.
  */
-internal fun isTransparentZeroWidth(c: Int): Boolean {
+internal fun isTransparentZeroWidth(c: Int): Boolean =
     if (lookupWidth(c).first != 0) {
-        return false
+        // Not zero-width
+        false
+    } else {
+        val cp = c
+        NON_TRANSPARENT_ZERO_WIDTHS
+            .asList()
+            .binarySearch { (loBytes, hiBytes) ->
+                val lo = loBytes[0] or (loBytes[1] shl 8) or (loBytes[2] shl 16)
+                val hi = hiBytes[0] or (hiBytes[1] shl 8) or (hiBytes[2] shl 16)
+                if (cp < lo) {
+                    1
+                } else if (cp > hi) {
+                    -1
+                } else {
+                    0
+                }
+            } < 0
     }
-    return rangeListContains(NON_TRANSPARENT_ZERO_WIDTHS, c).not()
-}
 
 /**
  * Whether this character is a default-ignorable combining mark or ZWJ.
@@ -1025,7 +1049,23 @@ internal fun isLigatureTransparent(c: Int): Boolean =
  * Whether this character is transparent wrt the effect of U+0338 COMBINING LONG SOLIDUS OVERLAY
  * on its base character.
  */
-internal fun isSolidusTransparent(c: Int): Boolean = isLigatureTransparent(c) || rangeListContains(SOLIDUS_TRANSPARENT, c)
+internal fun isSolidusTransparent(c: Int): Boolean {
+    val cp = c
+    return isLigatureTransparent(c) ||
+        SOLIDUS_TRANSPARENT
+            .asList()
+            .binarySearch { (loBytes, hiBytes) ->
+                val lo = loBytes[0] or (loBytes[1] shl 8) or (loBytes[2] shl 16)
+                val hi = hiBytes[0] or (hiBytes[1] shl 8) or (hiBytes[2] shl 16)
+                if (cp < lo) {
+                    1
+                } else if (cp > hi) {
+                    -1
+                } else {
+                    0
+                }
+            } >= 0
+}
 
 /**
  * Whether this character forms an
@@ -1080,7 +1120,17 @@ internal fun startsNonIdeographicTextPresentationSeq(c: Int): Boolean {
         }
 
     val bottomBits = cp and 0xFF
-    return pairListContains(leaf, bottomBits)
+    return leaf
+        .asList()
+        .binarySearch { entry ->
+            if (bottomBits < entry[0]) {
+                1
+            } else if (bottomBits > entry[1]) {
+                -1
+            } else {
+                0
+            }
+        } >= 0
 }
 
 /** Returns `true` if `c` is an Emoji Modifier Base. */
@@ -1102,39 +1152,17 @@ internal fun isEmojiModifierBase(c: Int): Boolean {
         }
 
     val bottomBits = cp and 0xFF
-    return pairListContains(leaf, bottomBits)
-}
-
-private fun pairListContains(leaf: Array<IntArray>, bottomBits: Int): Boolean {
-    var lo = 0
-    var hi = leaf.size
-    while (lo < hi) {
-        val mid = (lo + hi) ushr 1
-        val entry = leaf[mid]
-        when {
-            bottomBits < entry[0] -> hi = mid
-            bottomBits > entry[1] -> lo = mid + 1
-            else -> return true
-        }
-    }
-    return false
-}
-
-private fun rangeListContains(ranges: Array<Pair<IntArray, IntArray>>, cp: Int): Boolean {
-    var lo = 0
-    var hi = ranges.size
-    while (lo < hi) {
-        val mid = (lo + hi) ushr 1
-        val (loBytes, hiBytes) = ranges[mid]
-        val loCp = loBytes[0] or (loBytes[1] shl 8) or (loBytes[2] shl 16)
-        val hiCp = hiBytes[0] or (hiBytes[1] shl 8) or (hiBytes[2] shl 16)
-        when {
-            cp < loCp -> hi = mid
-            cp > hiCp -> lo = mid + 1
-            else -> return true
-        }
-    }
-    return false
+    return leaf
+        .asList()
+        .binarySearch { entry ->
+            if (bottomBits < entry[0]) {
+                1
+            } else if (bottomBits > entry[1]) {
+                -1
+            } else {
+                0
+            }
+        } >= 0
 }
 
 // ---- Auto-generated lookup data ----
