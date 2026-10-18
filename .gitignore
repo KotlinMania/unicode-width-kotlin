@@ -69,3 +69,4 @@ DerivedData/
 node_modules/
 package-lock.json
 tools/ast_distance
+deep_symbol_inventory.txt
