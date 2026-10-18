@@ -864,7 +864,136 @@ internal fun strWidthTestCjk(s: String, init: WidthInfo): Int {
     return sum
 }
 
+internal val NORMALIZATION_TEST_WIDTHS: Array<WidthInfo> =
+    arrayOf(
+        WidthInfo.DEFAULT,
+        WidthInfo.LINE_FEED,
+        WidthInfo.EMOJI_MODIFIER,
+        WidthInfo.REGIONAL_INDICATOR,
+        WidthInfo.SEVERAL_REGIONAL_INDICATOR,
+        WidthInfo.EMOJI_PRESENTATION,
+        WidthInfo.ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.VS16_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.KEYCAP_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.VS16_KEYCAP_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.REGIONAL_INDICATOR_ZWJ_PRESENTATION,
+        WidthInfo.EVEN_REGIONAL_INDICATOR_ZWJ_PRESENTATION,
+        WidthInfo.ODD_REGIONAL_INDICATOR_ZWJ_PRESENTATION,
+        WidthInfo.TAG_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_D1_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_D2_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_D3_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A1_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A2_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A3_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A4_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A5_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A6_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.KIRAT_RAI_VOWEL_SIGN_E,
+        WidthInfo.KIRAT_RAI_VOWEL_SIGN_AI,
+        WidthInfo.VARIATION_SELECTOR_1_OR_2,
+        WidthInfo.VARIATION_SELECTOR_15,
+        WidthInfo.VARIATION_SELECTOR_16,
+        WidthInfo.JOINING_GROUP_ALEF,
+        WidthInfo.HEBREW_LETTER_LAMED,
+        WidthInfo.ZWJ_HEBREW_LETTER_LAMED,
+        WidthInfo.BUGINESE_LETTER_YA,
+        WidthInfo.ZWJ_BUGINESE_LETTER_YA,
+        WidthInfo.BUGINESE_VOWEL_SIGN_I_ZWJ_LETTER_YA,
+        WidthInfo.TIFINAGH_CONSONANT,
+        WidthInfo.ZWJ_TIFINAGH_CONSONANT,
+        WidthInfo.TIFINAGH_JOINER_CONSONANT,
+        WidthInfo.LISU_TONE_LETTER_MYA_NA_JEU,
+        WidthInfo.OLD_TURKIC_LETTER_ORKHON_I,
+        WidthInfo.ZWJ_OLD_TURKIC_LETTER_ORKHON_I,
+        WidthInfo.KHMER_COENG_ELIGIBLE_LETTER,
+    )
+
+internal val NORMALIZATION_TEST_WIDTHS_CJK: Array<WidthInfo> =
+    arrayOf(
+        WidthInfo.DEFAULT,
+        WidthInfo.LINE_FEED,
+        WidthInfo.EMOJI_MODIFIER,
+        WidthInfo.REGIONAL_INDICATOR,
+        WidthInfo.SEVERAL_REGIONAL_INDICATOR,
+        WidthInfo.EMOJI_PRESENTATION,
+        WidthInfo.ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.VS16_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.KEYCAP_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.VS16_KEYCAP_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.REGIONAL_INDICATOR_ZWJ_PRESENTATION,
+        WidthInfo.EVEN_REGIONAL_INDICATOR_ZWJ_PRESENTATION,
+        WidthInfo.ODD_REGIONAL_INDICATOR_ZWJ_PRESENTATION,
+        WidthInfo.TAG_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_D1_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_D2_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_D3_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A1_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A2_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A3_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A4_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A5_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.TAG_A6_END_ZWJ_EMOJI_PRESENTATION,
+        WidthInfo.KIRAT_RAI_VOWEL_SIGN_E,
+        WidthInfo.KIRAT_RAI_VOWEL_SIGN_AI,
+        WidthInfo.VARIATION_SELECTOR_1_OR_2,
+        WidthInfo.VARIATION_SELECTOR_16,
+        WidthInfo.JOINING_GROUP_ALEF,
+        WidthInfo.COMBINING_LONG_SOLIDUS_OVERLAY,
+        WidthInfo.SOLIDUS_OVERLAY_ALEF,
+        WidthInfo.HEBREW_LETTER_LAMED,
+        WidthInfo.ZWJ_HEBREW_LETTER_LAMED,
+        WidthInfo.BUGINESE_LETTER_YA,
+        WidthInfo.ZWJ_BUGINESE_LETTER_YA,
+        WidthInfo.BUGINESE_VOWEL_SIGN_I_ZWJ_LETTER_YA,
+        WidthInfo.TIFINAGH_CONSONANT,
+        WidthInfo.ZWJ_TIFINAGH_CONSONANT,
+        WidthInfo.TIFINAGH_JOINER_CONSONANT,
+        WidthInfo.LISU_TONE_LETTER_MYA_NA_JEU,
+        WidthInfo.OLD_TURKIC_LETTER_ORKHON_I,
+        WidthInfo.ZWJ_OLD_TURKIC_LETTER_ORKHON_I,
+        WidthInfo.KHMER_COENG_ELIGIBLE_LETTER,
+    )
+
 internal fun testNormalization() {
+    val normalizationSample: Array<Array<String>> =
+        arrayOf(
+            arrayOf("Ḋ", "Ḋ", "Ḋ", "Ḋ", "Ḋ"),
+            arrayOf("Ḍ", "Ḍ", "Ḍ", "Ḍ", "Ḍ"),
+            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+            arrayOf("Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇", "Ḍ̇"),
+            arrayOf("Ḋ̛", "Ḋ̛", "Ḋ̛", "Ḋ̛", "Ḋ̛"),
+            arrayOf("Ḍ̛", "Ḍ̛", "Ḍ̛", "Ḍ̛", "Ḍ̛"),
+            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+            arrayOf("Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇", "Ḍ̛̇"),
+            arrayOf("È", "È", "È", "È", "È"),
+            arrayOf("Ē", "Ē", "Ē", "Ē", "Ē"),
+            arrayOf("È", "È", "È", "È", "È"),
+            arrayOf("Ē", "Ē", "Ē", "Ē", "Ē"),
+            arrayOf("Ḕ", "Ḕ", "Ḕ", "Ḕ", "Ḕ"),
+            arrayOf("Ḕ", "Ḕ", "Ḕ", "Ḕ", "Ḕ"),
+        )
+    for (entry in normalizationSample) {
+        val orig = entry[0]
+        val nfc = entry[1]
+        val nfd = entry[2]
+        val nfkc = entry[3]
+        val nfkd = entry[4]
+        for (init in NORMALIZATION_TEST_WIDTHS) {
+            check(strWidthTest(orig, init) == strWidthTest(nfc, init))
+            check(strWidthTest(orig, init) == strWidthTest(nfd, init))
+            check(strWidthTest(nfkc, init) == strWidthTest(nfkd, init))
+        }
+        for (init in NORMALIZATION_TEST_WIDTHS_CJK) {
+            check(strWidthTestCjk(orig, init) == strWidthTestCjk(nfc, init))
+            check(strWidthTestCjk(orig, init) == strWidthTestCjk(nfd, init))
+            check(strWidthTestCjk(nfkc, init) == strWidthTestCjk(nfkd, init))
+        }
+    }
 }
 
 /**
