@@ -5,10 +5,10 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 1/2 (50.0%)
-- **Function parity:** 26/29 matched (target 31) — 89.7%
+- **Function parity:** 26/29 matched (target 29) — 89.7%
 - **Class/type parity:** 4/4 matched (target 4) — 100.0%
-- **Combined symbol parity:** 30/33 matched (target 35) — 90.9%
-- **Average inline-code cosine:** 0.16 (function body across 1 matched files)
+- **Combined symbol parity:** 30/33 matched (target 33) — 90.9%
+- **Average inline-code cosine:** 0.21 (function body across 1 matched files)
 - **Average documentation cosine:** 0.93 (doc text across 1 matched files)
 - **Cheat-zeroed Files:** 0
 - **Critical Issues:** 1 files with <0.60 function similarity
@@ -32,10 +32,10 @@ Every matched file is listed below with function and type symbol parity.
 ### 1. tables
 
 - **Target:** `unicodewidth.Tables`
-- **Similarity:** 0.16
+- **Similarity:** 0.21
 - **Dependents:** 0
-- **Priority Score:** 33308.4
-- **Functions:** 26/29 matched (target 31)
+- **Priority Score:** 33307.9
+- **Functions:** 26/29 matched
 - **Missing functions:** `str_width_test`, `str_width_test_cjk`, `test_normalization`
 - **Types:** 4/4 matched
 - **Missing types:** _none_
